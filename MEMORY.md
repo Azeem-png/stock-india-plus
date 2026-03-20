@@ -7,6 +7,7 @@
 - Only save items to the external important memory vault when the user explicitly says "save kar lo" or "yaad rakhna".
 - User wants GPT usage alerts at 20% used, then every additional 10% usage.
 - User prefers a usage-saving mode that keeps replies concise and reduces unnecessary token burn.
+- User wants the aggressive usage-saving mode kept/saved.
 
 ## Current setup
 - Usage-saving mode rules:
