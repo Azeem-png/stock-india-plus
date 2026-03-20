@@ -1,0 +1,5 @@
+{
+  "lastAlertedUsedPercent": 10,
+  "updatedAt": "2026-03-20T18:28:00Z",
+  "notes": "Alert at 20%, then every +10% usage thereafter."
+}
