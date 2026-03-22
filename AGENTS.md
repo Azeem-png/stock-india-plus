@@ -128,10 +128,19 @@ For normal direct chats with the user, route work by task type before answering:
   2. `openrouter/qwen/qwen-2.5-72b-instruct:free`
   3. `openrouter/z-ai/glm-4.5-air:free`
 
+Per-message auto-switch rules:
+
+- In normal direct chats, decide the best-fit model **before every reply**.
+- If the current session model does not fit the task, switch the **current session model** first, then answer.
+- Use `session_status(model=...)` to switch the live session model when needed.
+- Only skip switching when the current model already matches the task well enough.
+- For risky/uncertain free-model routes, prefer `openrouter/auto` over weaker or flaky free models.
+- If a target model fails, rate-limits, or behaves unreliably, immediately switch to the next best working model and continue.
+
 Routing rules:
 
-- If the current model already fits the task well, answer directly.
-- If a different model is clearly better, use a subagent/model override for the task and then return the final answer in one consistent ChatGPT-style voice.
+- Prefer live session switching over hidden delegation when the user wants the current session itself to use the best-fit model.
+- Use subagent/model override only when you want parallel work, isolation, or a one-off specialist run.
 - Prefer reliability over novelty: if a free model is rate-limited or flaky, skip it and use the next best working option.
 - Do not mention routing decisions unless the user asks.
 - Keep final replies stylistically consistent even when work was delegated.
