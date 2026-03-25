@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stock India Plus</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="preview-note">
+      <h2>Runnable Demo</h2>
+      <p id="apiNote">Ye demo mock API par chal raha hai. Production se pehle licensed market/news feeds lagani hongi.</p>
+    </div>
+
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="statusbar"><span>9:41</span><span>5G • 87%</span></div>
+
+        <div class="top-section">
+          <div class="brand-row">
+            <div>
+              <div class="brand-title" id="title">Stock India Plus</div>
+              <div class="brand-sub" id="subtitle">Professional Indian stock intelligence demo</div>
+            </div>
+            <button class="icon-btn" onclick="toggleSettings()">⚙️</button>
+          </div>
+          <input id="searchInput" class="searchbox" placeholder="Search stock" />
+        </div>
+
+        <div id="settingsSheet" class="sheet">
+          <h3 id="settingsTitle">Settings</h3>
+          <div class="muted" id="langLabel" style="margin-bottom:8px;">Language</div>
+          <div class="row-wrap" style="margin-bottom:14px;">
+            <button class="chip" onclick="setLang('en')">English</button>
+            <button class="chip" onclick="setLang('hi')">Hindi</button>
+            <button class="chip" onclick="setLang('hg')">Hinglish</button>
+          </div>
+          <div class="muted" id="themeLabel" style="margin-bottom:8px;">Theme</div>
+          <div class="row-wrap">
+            <button class="chip" onclick="setTheme('light')">Light</button>
+            <button class="chip" onclick="setTheme('dark')">Dark</button>
+          </div>
+        </div>
+
+        <div class="hero">
+          <div id="heroLabel">NIFTY 50</div>
+          <div class="big" id="heroValue">22,486 <span style="font-size:18px">+0.84%</span></div>
+          <div id="heroText">AI-backed market explanation with real sources</div>
+        </div>
+
+        <div class="content">
+          <div class="card">
+            <h3 id="detailTitle">Selected stock details</h3>
+            <div id="selectedName" style="font-size:22px;font-weight:800;">RELIANCE</div>
+            <div id="selectedSub" class="muted">Reliance Industries • NSE</div>
+            <div style="margin-top:10px;font-size:28px;font-weight:800;" id="selectedPrice"></div>
+            <div class="detail-grid">
+              <div class="detail-box"><strong>Market Cap</strong><br><span id="selectedMcap"></span></div>
+              <div class="detail-box"><strong>P/E</strong><br><span id="selectedPE"></span></div>
+              <div class="detail-box"><strong>Sector</strong><br><span id="selectedSector"></span></div>
+              <div class="detail-box"><strong>View</strong><br><span id="selectedView"></span></div>
+            </div>
+            <div style="margin-top:14px;" class="muted" id="selectedReason"></div>
+            <a id="tvButton" class="tv-btn" href="#" target="_blank"><span class="tv-icon">TV</span><span id="tvText">Open on TradingView</span></a>
+          </div>
+
+          <div class="card">
+            <h3 id="whyTitle">Market kyu move kar raha hai</h3>
+            <div id="whyBody" class="muted"></div>
+          </div>
+
+          <div class="card">
+            <h3 id="tomorrowTitle">Kal ka outlook</h3>
+            <div id="tomorrowBody" class="muted"></div>
+          </div>
+
+          <div class="card">
+            <h3 id="sourcesTitle">Real source highlights</h3>
+            <div id="newsList"></div>
+          </div>
+
+          <div class="card">
+            <h3 id="stocksTitle">Explore karne layak stocks</h3>
+            <div id="stockList"></div>
+          </div>
+
+          <div class="card">
+            <h3 id="aiTitle">AI Stock Analyst</h3>
+            <input id="aiQuestion" class="searchbox" placeholder="Kisi stock ke bare me pucho..." />
+            <button id="askButton" class="tv-btn" style="border:none;cursor:pointer;margin-top:10px;">Ask AI</button>
+            <div class="answer" id="aiAnswer" style="margin-top:12px;">AI answer yahan dikhai dega.</div>
+          </div>
+
+          <div class="card">
+            <div class="mini">
+              <div class="stat"><strong>Bias</strong><br><span class="green" id="biasText"></span></div>
+              <div class="stat"><strong>Risk</strong><br><span id="riskText"></span></div>
+              <div class="stat"><strong>FII Flow</strong><br><span id="fiiText"></span></div>
+              <div class="stat"><strong>Volatility</strong><br><span id="volText"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-nav">
+          <div class="nav-item active">Home</div>
+          <div class="nav-item">Markets</div>
+          <div class="nav-item">Stocks</div>
+          <div class="nav-item">AI</div>
+          <div class="nav-item">Watchlist</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="app.js"></script>
+  <script>document.getElementById('askButton').addEventListener('click', askAi);</script>
+</body>
+</html>
