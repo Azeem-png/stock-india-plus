@@ -19,3 +19,14 @@
   - use local/free alternatives for non-critical tasks when asked
   - only do web/tool lookups when they add clear value
 - Deleted Ollama models on user request: gpt-oss:20b and qwen2.5:7b-instruct
+
+## Projects
+- Stock India Plus app concept is in progress in the workspace under `stock-demo-app/`.
+- Current progress saved includes:
+  - rough Kotlin Compose demo scaffold
+  - browser preview demo
+  - stock search UI
+  - stock selection with basic details
+  - TradingView button/link for selected stocks
+  - Android-style phone layout preview
+  - settings icon flow containing language and light/dark mode options
