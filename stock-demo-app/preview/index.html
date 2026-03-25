@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stock India Plus - Browser Demo</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #141b34;
+      --muted: #95a3c7;
+      --text: #eef3ff;
+      --primary: #4f8cff;
+      --primary2: #7b61ff;
+      --border: rgba(255,255,255,0.08);
+      --green: #1dd1a1;
+      --red: #ff6b81;
+      --chip: rgba(255,255,255,0.08);
+    }
+    body.light {
+      --bg: #f4f7ff;
+      --card: #ffffff;
+      --muted: #5b6787;
+      --text: #10182b;
+      --primary: #2563eb;
+      --primary2: #7c3aed;
+      --border: rgba(16,24,43,0.08);
+      --green: #0f9d72;
+      --red: #e54864;
+      --chip: #eef3ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: .2s ease;
+    }
+    .wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .brand h1 { margin: 0; font-size: 30px; }
+    .brand p { margin: 6px 0 0; color: var(--muted); }
+    .controls { display: flex; gap: 10px; flex-wrap: wrap; }
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 290px 1fr 360px;
+      gap: 18px;
+    }
+    .panel, .phone, .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.14);
+    }
+    .panel { padding: 18px; height: fit-content; }
+    .nav-item {
+      padding: 14px 16px;
+      border-radius: 16px;
+      color: var(--muted);
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+    .nav-item.active, .nav-item:hover {
+      background: linear-gradient(90deg, var(--primary), var(--primary2));
+      color: white;
+    }
+    .phone {
+      overflow: hidden;
+      min-height: 860px;
+    }
+    .hero {
+      padding: 22px;
+      background: linear-gradient(120deg, var(--primary), var(--primary2));
+      color: white;
+    }
+    .hero .big { font-size: 36px; font-weight: 800; margin: 10px 0 6px; }
+    .content { padding: 18px; display: grid; gap: 14px; }
+    .card { padding: 18px; }
+    .card h3 { margin: 0 0 10px; font-size: 18px; }
+    .muted { color: var(--muted); }
+    .news { padding: 10px 0; border-top: 1px solid var(--border); }
+    .news:first-of-type { border-top: none; padding-top: 0; }
+    .stock {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 0;
+      border-top: 1px solid var(--border);
+    }
+    .stock:first-of-type { border-top: none; padding-top: 0; }
+    .pill {
+      display: inline-block;
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: var(--chip);
+      margin-top: 8px;
+    }
+    .green { color: var(--green); }
+    .red { color: var(--red); }
+    .rightcol { display: grid; gap: 18px; }
+    .askbox {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      margin: 10px 0;
+    }
+    .answer {
+      background: rgba(79,140,255,0.12);
+      border: 1px solid rgba(79,140,255,0.18);
+      padding: 14px;
+      border-radius: 16px;
+      line-height: 1.55;
+    }
+    .mini {
+      display: grid;
+      grid-template-columns: repeat(2,1fr);
+      gap: 12px;
+    }
+    .stat {
+      padding: 14px;
+      border-radius: 18px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+    }
+    .footer-note {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <h1 id="title">Stock India Plus</h1>
+        <p id="subtitle">Professional Indian stock intelligence demo</p>
+      </div>
+      <div class="controls">
+        <button class="chip" onclick="setLang('en')">English</button>
+        <button class="chip" onclick="setLang('hi')">Hindi</button>
+        <button class="chip" onclick="setLang('hg')">Hinglish</button>
+        <button class="chip" onclick="toggleTheme()">Light / Dark</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="panel">
+        <div class="nav-item active">Home</div>
+        <div class="nav-item">Markets</div>
+        <div class="nav-item">Stocks</div>
+        <div class="nav-item">AI Analyst</div>
+        <div class="nav-item">Watchlist</div>
+        <div class="nav-item">Settings</div>
+        <hr style="border-color: var(--border); opacity: .4; margin: 18px 0;">
+        <div class="muted" id="leftExplain">This left menu shows how the app can be structured on mobile and web preview.</div>
+      </div>
+
+      <div class="phone">
+        <div class="hero">
+          <div id="heroLabel">NIFTY 50</div>
+          <div class="big">22,486 <span style="font-size:18px">+0.84%</span></div>
+          <div id="heroText">AI-backed market explanation with real sources</div>
+        </div>
+
+        <div class="content">
+          <div class="card">
+            <h3 id="whyTitle">Why market is moving</h3>
+            <div id="whyBody" class="muted">Market upar hai mainly kyunki banking stocks strong hain, crude stable hai, aur foreign sentiment improve hua hai. IT weakness gains ko limit kar rahi hai.</div>
+          </div>
+
+          <div class="card">
+            <h3 id="tomorrowTitle">Tomorrow outlook</h3>
+            <div id="tomorrowBody" class="muted">Kal ka bias mildly positive lag raha hai, but global cues, FII flow, overnight US market, aur RBI/government headlines pe depend karega.</div>
+          </div>
+
+          <div class="card">
+            <h3 id="sourcesTitle">Real source highlights</h3>
+            <div class="news"><strong>Reuters</strong> • Positive for Bank Nifty<br><span class="muted">Banking stocks gained after RBI liquidity comfort signals</span></div>
+            <div class="news"><strong>Moneycontrol</strong> • Negative for Nifty IT<br><span class="muted">IT stocks slipped on weak global tech cues</span></div>
+            <div class="news"><strong>NSE Filing</strong> • Stock-specific positive<br><span class="muted">Large cap company announced capex expansion</span></div>
+          </div>
+
+          <div class="card">
+            <h3 id="stocksTitle">Explore karne layak stocks</h3>
+            <div class="stock">
+              <div><strong>RELIANCE</strong><br><span class="muted">Reliance Industries</span><br><span class="pill">Watch / Gradual Buy</span></div>
+              <div style="text-align:right"><strong>₹2,948</strong><br><span class="green">+1.82%</span></div>
+            </div>
+            <div class="stock">
+              <div><strong>TCS</strong><br><span class="muted">Tata Consultancy Services</span><br><span class="pill">Hold</span></div>
+              <div style="text-align:right"><strong>₹4,102</strong><br><span class="red">-0.94%</span></div>
+            </div>
+            <div class="stock">
+              <div><strong>HDFCBANK</strong><br><span class="muted">HDFC Bank</span><br><span class="pill">Positive Bias</span></div>
+              <div style="text-align:right"><strong>₹1,672</strong><br><span class="green">+2.11%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rightcol">
+        <div class="card">
+          <h3 id="aiTitle">AI Stock Analyst</h3>
+          <input class="askbox" id="askInput" value="Kya mujhe Infosys buy karna chahiye?" readonly />
+          <div class="answer" id="aiAnswer">
+            Infosys long term tracking ke liye neutral-to-positive lagti hai, but near term move deal wins, margin commentary, aur US demand recovery pe depend karega. Blind buy nahi. Dips pe risk control ke saath better ho sakti hai.
+            <div class="footer-note" style="margin-top:10px;">Confidence: 72% • Sources: Reuters, company commentary, sector trend</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="statsTitle">Quick signals</h3>
+          <div class="mini">
+            <div class="stat"><strong>Bias</strong><br><span class="green" id="biasText">Mild Positive</span></div>
+            <div class="stat"><strong>Risk</strong><br><span id="riskText">Medium</span></div>
+            <div class="stat"><strong>FII Flow</strong><br><span id="fiiText">Improving</span></div>
+            <div class="stat"><strong>Volatility</strong><br><span id="volText">Controlled</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="noteTitle">Production note</h3>
+          <div class="muted" id="noteBody">Ye browser demo hai. Real app me live sources, timestamps, citations, confidence scoring, aur not-investment-advice disclaimer mandatory honge.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const copy = {
+      en: {
+        title: 'Stock India Plus',
+        subtitle: 'Professional Indian stock intelligence demo',
+        leftExplain: 'This left menu shows how the app can be structured on mobile and web preview.',
+        heroText: 'AI-backed market explanation with real sources',
+        whyTitle: 'Why market is moving',
+        whyBody: 'Market is up mainly because banking stocks are strong, crude is stable, and foreign sentiment improved. IT weakness is limiting gains.',
+        tomorrowTitle: 'Tomorrow outlook',
+        tomorrowBody: 'Tomorrow bias looks mildly positive, but it depends on global cues, FII flow, overnight US market, and any RBI/government headline.',
+        sourcesTitle: 'Real source highlights',
+        stocksTitle: 'Stocks to explore',
+        aiTitle: 'AI Stock Analyst',
+        askInput: 'Should I buy Infosys?',
+        aiAnswer: 'Infosys looks neutral-to-positive for long-term tracking, but near-term movement depends on deal wins, margin commentary, and US demand recovery. Not a blind buy. Better on dips with risk control.',
+        aiFoot: 'Confidence: 72% • Sources: Reuters, company commentary, sector trend',
+        statsTitle: 'Quick signals',
+        biasText: 'Mild Positive',
+        riskText: 'Medium',
+        fiiText: 'Improving',
+        volText: 'Controlled',
+        noteTitle: 'Production note',
+        noteBody: 'This is a browser demo. In the real app, live sources, timestamps, citations, confidence scoring, and a not-investment-advice disclaimer are mandatory.'
+      },
+      hi: {
+        title: 'स्टॉक इंडिया प्लस',
+        subtitle: 'प्रोफेशनल भारतीय स्टॉक इंटेलिजेंस डेमो',
+        leftExplain: 'यह बायां मेन्यू दिखाता है कि ऐप मोबाइल और वेब प्रीव्यू पर कैसे स्ट्रक्चर हो सकती है।',
+        heroText: 'रीयल सोर्स के साथ एआई आधारित मार्केट एक्सप्लनेशन',
+        whyTitle: 'मार्केट क्यों मूव कर रहा है',
+        whyBody: 'मार्केट ऊपर है क्योंकि बैंकिंग स्टॉक्स मजबूत हैं, कच्चे तेल में स्थिरता है और विदेशी सेंटीमेंट बेहतर हुआ है। आईटी सेक्टर कमजोरी से बढ़त सीमित है।',
+        tomorrowTitle: 'कल का आउटलुक',
+        tomorrowBody: 'कल का रुझान हल्का पॉजिटिव दिखता है, लेकिन यह ग्लोबल संकेतों, एफआईआई फ्लो, अमेरिकी बाजार और RBI/सरकारी खबरों पर निर्भर करेगा।',
+        sourcesTitle: 'रीयल सोर्स हाइलाइट्स',
+        stocksTitle: 'देखने लायक स्टॉक्स',
+        aiTitle: 'एआई स्टॉक एनालिस्ट',
+        askInput: 'क्या मुझे Infosys खरीदना चाहिए?',
+        aiAnswer: 'Infosys लंबी अवधि के लिए न्यूट्रल-टू-पॉजिटिव दिखती है, लेकिन निकट अवधि की चाल डील विन, मार्जिन कमेंट्री और अमेरिकी डिमांड रिकवरी पर निर्भर करेगी। बिना सोचे-समझे खरीदारी नहीं। गिरावट पर रिस्क कंट्रोल के साथ बेहतर हो सकती है।',
+        aiFoot: 'कॉन्फिडेंस: 72% • सोर्स: Reuters, कंपनी कमेंट्री, सेक्टर ट्रेंड',
+        statsTitle: 'क्विक सिग्नल्स',
+        biasText: 'हल्का पॉजिटिव',
+        riskText: 'मध्यम',
+        fiiText: 'सुधर रहा है',
+        volText: 'नियंत्रित',
+        noteTitle: 'प्रोडक्शन नोट',
+        noteBody: 'यह एक ब्राउज़र डेमो है। असली ऐप में लाइव सोर्स, टाइमस्टैम्प, सिटेशन, कॉन्फिडेंस स्कोर और निवेश सलाह नहीं है वाला डिस्क्लेमर जरूरी होगा।'
+      },
+      hg: {
+        title: 'Stock India Plus',
+        subtitle: 'Professional Indian stock intelligence demo',
+        leftExplain: 'Ye left menu dikhata hai ki app mobile aur web preview me kaise structure ho sakti hai.',
+        heroText: 'Real sources ke saath AI-backed market explanation',
+        whyTitle: 'Market kyu move kar raha hai',
+        whyBody: 'Market upar hai mainly kyunki banking stocks strong hain, crude stable hai, aur foreign sentiment improve hua hai. IT weakness gains ko limit kar rahi hai.',
+        tomorrowTitle: 'Kal ka outlook',
+        tomorrowBody: 'Kal ka bias mildly positive lag raha hai, but global cues, FII flow, overnight US market, aur RBI/government headlines pe depend karega.',
+        sourcesTitle: 'Real source highlights',
+        stocksTitle: 'Explore karne layak stocks',
+        aiTitle: 'AI Stock Analyst',
+        askInput: 'Kya mujhe Infosys buy karna chahiye?',
+        aiAnswer: 'Infosys long term tracking ke liye neutral-to-positive lagti hai, but near term move deal wins, margin commentary, aur US demand recovery pe depend karega. Blind buy nahi. Dips pe risk control ke saath better ho sakti hai.',
+        aiFoot: 'Confidence: 72% • Sources: Reuters, company commentary, sector trend',
+        statsTitle: 'Quick signals',
+        biasText: 'Mild Positive',
+        riskText: 'Medium',
+        fiiText: 'Improving',
+        volText: 'Controlled',
+        noteTitle: 'Production note',
+        noteBody: 'Ye browser demo hai. Real app me live sources, timestamps, citations, confidence scoring, aur not-investment-advice disclaimer mandatory honge.'
+      }
+    };
+
+    function setLang(lang) {
+      const c = copy[lang];
+      document.getElementById('title').textContent = c.title;
+      document.getElementById('subtitle').textContent = c.subtitle;
+      document.getElementById('leftExplain').textContent = c.leftExplain;
+      document.getElementById('heroText').textContent = c.heroText;
+      document.getElementById('whyTitle').textContent = c.whyTitle;
+      document.getElementById('whyBody').textContent = c.whyBody;
+      document.getElementById('tomorrowTitle').textContent = c.tomorrowTitle;
+      document.getElementById('tomorrowBody').textContent = c.tomorrowBody;
+      document.getElementById('sourcesTitle').textContent = c.sourcesTitle;
+      document.getElementById('stocksTitle').textContent = c.stocksTitle;
+      document.getElementById('aiTitle').textContent = c.aiTitle;
+      document.getElementById('askInput').value = c.askInput;
+      document.getElementById('aiAnswer').innerHTML = c.aiAnswer + '<div class="footer-note" style="margin-top:10px;">' + c.aiFoot + '</div>';
+      document.getElementById('statsTitle').textContent = c.statsTitle;
+      document.getElementById('biasText').textContent = c.biasText;
+      document.getElementById('riskText').textContent = c.riskText;
+      document.getElementById('fiiText').textContent = c.fiiText;
+      document.getElementById('volText').textContent = c.volText;
+      document.getElementById('noteTitle').textContent = c.noteTitle;
+      document.getElementById('noteBody').textContent = c.noteBody;
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('light');
+    }
+  </script>
+</body>
+</html>
