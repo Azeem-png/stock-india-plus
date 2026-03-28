@@ -1,9 +1,10 @@
 {
+  "outputDirectory": "web",
   "cleanUrls": true,
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/web/$1"
+      "destination": "/$1"
     }
   ],
   "routes": [
@@ -12,11 +13,11 @@
     },
     {
       "src": "/",
-      "dest": "/web/index.html"
+      "dest": "/index.html"
     },
     {
       "src": "/(.*)",
-      "dest": "/web/$1"
+      "dest": "/$1"
     }
   ]
 }
