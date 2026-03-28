@@ -1,0 +1,8 @@
+{
+  "name": "stock-india-plus-web",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "build": "node -e \"console.log('Static web deploy ready')\""
+  }
+}
