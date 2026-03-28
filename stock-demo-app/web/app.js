@@ -10,18 +10,21 @@ const state = {
   selectedSymbol: 'RELIANCE',
   settingsOpen: false,
   watchlist: [],
-  currentUser: localStorage.getItem(userStorageKey) || ''
+  currentUser: localStorage.getItem(userStorageKey) || '',
+  marketMeta: null,
+  newsMeta: null,
+  searchMeta: null
 };
 
 const copy = {
   en: {
-    title: 'Stock India Plus', subtitle: 'Professional Indian stock intelligence demo', settingsTitle: 'Settings', langLabel: 'Language', themeLabel: 'Theme', searchPlaceholder: 'Search NSE/BSE stock e.g. Reliance, TCS, HDFC Bank', detailTitle: 'Selected stock details', tvText: 'Open on TradingView', saveText: 'Save to Watchlist', savedText: 'Saved in Watchlist', removeText: 'Remove from Watchlist', watchlistTitle: 'Your watchlist', watchlistEmpty: 'No saved stocks yet. Tap the button above to add your current pick.', whyTitle: 'Why market is moving', tomorrowTitle: 'Tomorrow outlook', sourcesTitle: 'Real source highlights', stocksTitle: 'Stocks to explore', aiTitle: 'AI Stock Analyst', askPlaceholder: 'Ask about a stock...', askButton: 'Ask AI', note: 'Demo mode with mock API. Replace with licensed market/news feeds before production.', loginTitle: 'Simple login', loginHint: 'Enter your name to keep a personal watchlist on this device.', loginPlaceholder: 'Your name', loginButton: 'Continue', switchUser: 'Switch user', currentUserLabel: 'Current user', watchlistNeedsLogin: 'Enter your name to use the watchlist.', authHeading: 'Welcome back', authSubtext: 'Log in with your name and jump into your personal stock dashboard.', logoutHint: 'Logout takes you back to the login screen while keeping the same simple local profile flow.'
+    title: 'Stock India Plus', subtitle: 'Professional Indian stock intelligence demo', settingsTitle: 'Settings', langLabel: 'Language', themeLabel: 'Theme', searchPlaceholder: 'Search NSE/BSE stock e.g. Reliance, TCS, HDFC Bank', detailTitle: 'Selected stock details', tvText: 'Open on TradingView', saveText: 'Save to Watchlist', savedText: 'Saved in Watchlist', removeText: 'Remove from Watchlist', watchlistTitle: 'Your watchlist', watchlistEmpty: 'No saved stocks yet. Tap the button above to add your current pick.', whyTitle: 'Why market is moving', tomorrowTitle: 'Tomorrow outlook', sourcesTitle: 'Source-labeled news', stocksTitle: 'Stocks to explore', aiTitle: 'AI Stock Analyst', askPlaceholder: 'Ask about a stock...', askButton: 'Ask AI', note: 'Live providers may be unavailable. This app now labels fallback/demo content more clearly.', loginTitle: 'Simple login', loginHint: 'Enter your name to keep a personal watchlist on this device.', loginPlaceholder: 'Your name', loginButton: 'Continue', switchUser: 'Switch user', currentUserLabel: 'Current user', watchlistNeedsLogin: 'Enter your name to use the watchlist.', authHeading: 'Welcome back', authSubtext: 'Log in with your name and jump into your personal stock dashboard.', logoutHint: 'Logout takes you back to the login screen while keeping the same simple local profile flow.', searchMetaFallback: 'Showing app-tracked results. Live market search is unavailable right now.', searchMetaLive: 'Search is ranked by symbol, company name, and common aliases.', newsFallback: 'Fallback/demo news shown because live news is unavailable.', newsLive: 'News items show source labels so trust is easier to judge.', aiWeak: 'Answer is limited because the app context is weak right now.'
   },
   hi: {
-    title: 'स्टॉक इंडिया प्लस', subtitle: 'प्रोफेशनल भारतीय स्टॉक इंटेलिजेंस डेमो', settingsTitle: 'सेटिंग्स', langLabel: 'भाषा', themeLabel: 'थीम', searchPlaceholder: 'NSE/BSE स्टॉक खोजें जैसे Reliance, TCS, HDFC Bank', detailTitle: 'चुने गए स्टॉक की डिटेल्स', tvText: 'TradingView पर खोलें', saveText: 'वॉचलिस्ट में सेव करें', savedText: 'वॉचलिस्ट में सेव है', removeText: 'वॉचलिस्ट से हटाएं', watchlistTitle: 'आपकी वॉचलिस्ट', watchlistEmpty: 'अभी कोई सेव स्टॉक नहीं है। ऊपर वाला बटन दबाकर स्टॉक जोड़ें।', whyTitle: 'मार्केट क्यों मूव कर रहा है', tomorrowTitle: 'कल का आउटलुक', sourcesTitle: 'रीयल सोर्स हाइलाइट्स', stocksTitle: 'देखने लायक स्टॉक्स', aiTitle: 'एआई स्टॉक एनालिस्ट', askPlaceholder: 'किसी स्टॉक के बारे में पूछें...', askButton: 'AI से पूछें', note: 'यह डेमो mock API पर चल रहा है। प्रोडक्शन से पहले licensed market/news feeds लगानी होंगी।', loginTitle: 'सिंपल लॉगिन', loginHint: 'अपना नाम लिखें, ताकि इस डिवाइस पर आपकी अलग वॉचलिस्ट रहे।', loginPlaceholder: 'आपका नाम', loginButton: 'जारी रखें', switchUser: 'यूज़र बदलें', currentUserLabel: 'करेंट यूज़र', watchlistNeedsLogin: 'वॉचलिस्ट यूज़ करने के लिए अपना नाम डालें।', authHeading: 'वापसी पर स्वागत है', authSubtext: 'अपने नाम से लॉगिन करें और अपनी पर्सनल स्टॉक डैशबोर्ड में जाएं।', logoutHint: 'लॉगआउट करने पर आप फिर से लॉगिन स्क्रीन पर आ जाएंगे, वही simple local profile flow रहेगा।'
+    title: 'स्टॉक इंडिया प्लस', subtitle: 'प्रोफेशनल भारतीय स्टॉक इंटेलिजेंस डेमो', settingsTitle: 'सेटिंग्स', langLabel: 'भाषा', themeLabel: 'थीम', searchPlaceholder: 'NSE/BSE स्टॉक खोजें जैसे Reliance, TCS, HDFC Bank', detailTitle: 'चुने गए स्टॉक की डिटेल्स', tvText: 'TradingView पर खोलें', saveText: 'वॉचलिस्ट में सेव करें', savedText: 'वॉचलिस्ट में सेव है', removeText: 'वॉचलिस्ट से हटाएं', watchlistTitle: 'आपकी वॉचलिस्ट', watchlistEmpty: 'अभी कोई सेव स्टॉक नहीं है। ऊपर वाला बटन दबाकर स्टॉक जोड़ें।', whyTitle: 'मार्केट क्यों मूव कर रहा है', tomorrowTitle: 'कल का आउटलुक', sourcesTitle: 'सोर्स-लेबल्ड न्यूज़', stocksTitle: 'देखने लायक स्टॉक्स', aiTitle: 'एआई स्टॉक एनालिस्ट', askPlaceholder: 'किसी स्टॉक के बारे में पूछें...', askButton: 'AI से पूछें', note: 'अगर live providers unavailable हों, तो app fallback/demo content ko clearly label करेगी।', loginTitle: 'सिंपल लॉगिन', loginHint: 'अपना नाम लिखें, ताकि इस डिवाइस पर आपकी अलग वॉचलिस्ट रहे।', loginPlaceholder: 'आपका नाम', loginButton: 'जारी रखें', switchUser: 'यूज़र बदलें', currentUserLabel: 'करेंट यूज़र', watchlistNeedsLogin: 'वॉचलिस्ट यूज़ करने के लिए अपना नाम डालें।', authHeading: 'वापसी पर स्वागत है', authSubtext: 'अपने नाम से लॉगिन करें और अपनी पर्सनल स्टॉक डैशबोर्ड में जाएं।', logoutHint: 'लॉगआउट करने पर आप फिर से लॉगिन स्क्रीन पर आ जाएंगे, वही simple local profile flow रहेगा।', searchMetaFallback: 'अभी live market search उपलब्ध नहीं है, इसलिए app-tracked results दिख रहे हैं।', searchMetaLive: 'Search symbol, company name और common aliases के हिसाब से rank हो रही है।', newsFallback: 'Live news unavailable होने पर fallback/demo news दिखाई जा रही है।', newsLive: 'हर news item पर source label दिखेगा ताकि trust judge करना आसान हो।', aiWeak: 'अभी app context weak है, इसलिए answer limited है।'
   },
   hg: {
-    title: 'Stock India Plus', subtitle: 'Professional Indian stock intelligence demo', settingsTitle: 'Settings', langLabel: 'Language', themeLabel: 'Theme', searchPlaceholder: 'Search NSE/BSE stock e.g. Reliance, TCS, HDFC Bank', detailTitle: 'Selected stock details', tvText: 'Open on TradingView', saveText: 'Watchlist me save karo', savedText: 'Watchlist me saved hai', removeText: 'Watchlist se hatao', watchlistTitle: 'Tumhari watchlist', watchlistEmpty: 'Abhi koi stock saved nahi hai. Upar wale button se current stock add karo.', whyTitle: 'Market kyu move kar raha hai', tomorrowTitle: 'Kal ka outlook', sourcesTitle: 'Real source highlights', stocksTitle: 'Explore karne layak stocks', aiTitle: 'AI Stock Analyst', askPlaceholder: 'Kisi stock ke bare me pucho...', askButton: 'Ask AI', note: 'Ye demo mock API par chal raha hai. Production se pehle licensed market/news feeds lagani hongi.', loginTitle: 'Simple login', loginHint: 'Apna naam daalo, bas wahi tumhari identity hogi aur watchlist user-wise save hogi.', loginPlaceholder: 'Apna naam', loginButton: 'Continue', switchUser: 'Logout / user badlo', currentUserLabel: 'Current user', watchlistNeedsLogin: 'Watchlist use karne ke liye naam enter karo.', authHeading: 'Welcome back', authSubtext: 'Naam se login karo aur apni personal watchlist ke saath app me enter ho jao.', logoutHint: 'Logout karoge to wapas login screen par aa jaoge, simple profile flow same rahega.'
+    title: 'Stock India Plus', subtitle: 'Professional Indian stock intelligence demo', settingsTitle: 'Settings', langLabel: 'Language', themeLabel: 'Theme', searchPlaceholder: 'Search NSE/BSE stock e.g. Reliance, TCS, HDFC Bank', detailTitle: 'Selected stock details', tvText: 'Open on TradingView', saveText: 'Watchlist me save karo', savedText: 'Watchlist me saved hai', removeText: 'Watchlist se hatao', watchlistTitle: 'Tumhari watchlist', watchlistEmpty: 'Abhi koi stock saved nahi hai. Upar wale button se current stock add karo.', whyTitle: 'Market kyu move kar raha hai', tomorrowTitle: 'Kal ka outlook', sourcesTitle: 'Source-labeled news', stocksTitle: 'Explore karne layak stocks', aiTitle: 'AI Stock Analyst', askPlaceholder: 'Kisi stock ke bare me pucho...', askButton: 'Ask AI', note: 'Agar live providers down ya unavailable hon, app fallback/demo content ko clearly label karegi.', loginTitle: 'Simple login', loginHint: 'Apna naam daalo, bas wahi tumhari identity hogi aur watchlist user-wise save hogi.', loginPlaceholder: 'Apna naam', loginButton: 'Continue', switchUser: 'Logout / user badlo', currentUserLabel: 'Current user', watchlistNeedsLogin: 'Watchlist use karne ke liye naam enter karo.', authHeading: 'Welcome back', authSubtext: 'Naam se login karo aur apni personal watchlist ke saath app me enter ho jao.', logoutHint: 'Logout karoge to wapas login screen par aa jaoge, simple profile flow same rahega.', searchMetaFallback: 'Abhi live market search available nahi hai, isliye app-tracked results dikh rahe hain.', searchMetaLive: 'Search ab symbol, company name, aur common aliases par better rank hoti hai.', newsFallback: 'Live news unavailable ho to fallback/demo items clearly mark kiye jaate hain.', newsLive: 'Har news item par source label aur trust note diya gaya hai.', aiWeak: 'App ka context weak hai, isliye AI answer cautious rakha gaya hai.'
   }
 };
 
@@ -29,6 +32,15 @@ async function getJson(path) {
   const res = await fetch(`${apiBase}${path}`);
   if (!res.ok) throw new Error(`API failed: ${path}`);
   return res.json();
+}
+
+async function getJsonWithMeta(path) {
+  const res = await fetch(`${apiBase}${path}`);
+  if (!res.ok) throw new Error(`API failed: ${path}`);
+  const data = await res.json();
+  if (Array.isArray(data)) return { items: data, meta: null };
+  if (Array.isArray(data.items)) return data;
+  return { items: [], meta: null };
 }
 
 async function sendJson(path, method, body) {
@@ -159,6 +171,8 @@ function setLang(lang) {
   setUserBadge();
   renderWatchButton();
   renderWatchlist();
+  renderSearchMeta();
+  renderNewsMeta();
   closeSettings();
 }
 
@@ -176,10 +190,38 @@ function closeSettings() {
   document.getElementById('settingsSheet').classList.remove('open');
 }
 
+function renderSearchMeta() {
+  const c = currentCopy();
+  const meta = state.searchMeta;
+  const el = document.getElementById('searchMeta');
+  if (!el) return;
+  if (!meta) {
+    el.textContent = '';
+    return;
+  }
+  el.textContent = meta.usingFallback ? c.searchMetaFallback : c.searchMetaLive;
+}
+
+function renderNewsMeta() {
+  const c = currentCopy();
+  const meta = state.newsMeta;
+  const el = document.getElementById('newsMeta');
+  if (!el) return;
+  if (!meta) {
+    el.textContent = '';
+    return;
+  }
+  const base = meta.usingFallback ? c.newsFallback : c.newsLive;
+  const quality = meta.sourceQuality ? ` Source quality: ${meta.sourceQuality}.` : '';
+  el.textContent = `${base}${quality}`;
+}
+
 async function renderOverview() {
   const overview = await getJson('/market/overview');
+  state.marketMeta = { usingFallback: overview.usingFallback, provider: overview.provider, error: overview.error };
   setText('heroLabel', overview.indexName);
   document.getElementById('heroValue').innerHTML = `${overview.value.toLocaleString('en-IN')} <span style="font-size:18px">${overview.changePercent > 0 ? '+' : ''}${overview.changePercent}%</span>`;
+  setText('heroText', overview.usingFallback ? 'Tracked-market summary using fallback market data' : 'Market explanation using current configured providers');
   setText('whyBody', overview.todayReason);
   setText('tomorrowBody', overview.tomorrowOutlook);
   setText('biasText', overview.quickSignals.bias);
@@ -189,19 +231,31 @@ async function renderOverview() {
 }
 
 async function renderNews() {
-  const items = await getJson('/news');
+  const result = await getJsonWithMeta('/news');
+  const items = result.items || [];
+  state.newsMeta = result.meta;
+  renderNewsMeta();
   document.getElementById('newsList').innerHTML = items.map(item => `
-    <div class="news">
-      <strong>${item.source}</strong> • ${item.impact}<br>
-      <span class="muted">${item.title}</span><br>
-      <a href="${item.url}" target="_blank">Source</a>
+    <div class="news ${item.isFallback ? 'news-fallback' : ''}">
+      <div class="news-head">
+        <strong>${item.sourceLabel || item.source}</strong>
+        ${item.isFallback ? '<span class="news-badge">DEMO</span>' : ''}
+      </div>
+      <div class="muted news-impact">${item.impact}</div>
+      <div class="news-title">${item.title}</div>
+      <div class="footer-note">${item.trustNote || ''}</div>
+      <a href="${item.url}" target="_blank" rel="noopener noreferrer">Open source</a>
     </div>
   `).join('');
 }
 
 async function renderStocks(q = '') {
-  const items = await getJson(`/stocks${q ? `?q=${encodeURIComponent(q)}` : ''}`);
-  document.getElementById('stockList').innerHTML = items.map(stock => `
+  const result = await getJsonWithMeta(`/stocks${q ? `?q=${encodeURIComponent(q)}` : ''}`);
+  const items = result.items || [];
+  state.searchMeta = result.meta;
+  renderSearchMeta();
+
+  document.getElementById('stockList').innerHTML = items.length ? items.map(stock => `
     <div class="stock" onclick="selectStock('${stock.symbol}')">
       <div>
         <strong>${stock.symbol}</strong><br>
@@ -213,7 +267,7 @@ async function renderStocks(q = '') {
         <span class="${stock.changePercent >= 0 ? 'green' : 'red'}">${stock.changePercent >= 0 ? '+' : ''}${stock.changePercent}%</span>
       </div>
     </div>
-  `).join('');
+  `).join('') : '<div class="empty-state">No matching stock found in currently tracked symbols.</div>';
 }
 
 async function renderWatchlistData() {
@@ -315,7 +369,15 @@ async function askAi() {
     body: JSON.stringify({ question, symbol: state.selectedSymbol })
   });
   const data = await res.json();
-  document.getElementById('aiAnswer').innerHTML = `${data.answer}<div class='footer-note'>Confidence: ${data.confidence}% • Sources: ${data.sources.map(s => s.source).join(', ')}</div>`;
+  const c = currentCopy();
+  const weakLine = data.weakContext ? `<div class='footer-note'>${c.aiWeak}</div>` : '';
+  const sources = (data.sources || []).slice(0, 3).map(s => s.source).join(', ') || 'No sources';
+  const providerLine = `${data.usingFallback ? 'Fallback' : 'Live AI'} • Confidence: ${data.confidence}%`;
+  document.getElementById('aiAnswer').innerHTML = `
+    <div>${data.answer}</div>
+    ${weakLine}
+    <div class='footer-note'>${providerLine} • Sources: ${sources}</div>
+  `;
 }
 
 async function init() {

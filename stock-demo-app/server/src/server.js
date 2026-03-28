@@ -25,6 +25,7 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
 const TWELVE_DATA_BASE_URL = 'https://api.twelvedata.com';
 const NEWS_API_BASE_URL = 'https://newsapi.org/v2';
 const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
+const TRUSTED_NEWS_SOURCES = ['Reuters', 'Moneycontrol', 'CNBC', 'CNBC TV18', 'Economic Times', 'Business Standard', 'Mint'];
 
 function formatStock(stock) {
   return {
@@ -42,6 +43,78 @@ function trimText(value, maxLength = 280) {
   const text = String(value || '').replace(/\s+/g, ' ').trim();
   if (!text) return '';
   return text.length > maxLength ? `${text.slice(0, maxLength - 1)}…` : text;
+}
+
+function normalizeSearchText(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function getSearchHaystacks(stock) {
+  return [
+    stock.symbol,
+    stock.name,
+    stock.sector,
+    ...(Array.isArray(stock.aliases) ? stock.aliases : [])
+  ].map(normalizeSearchText).filter(Boolean);
+}
+
+function scoreStockMatch(stock, query) {
+  const q = normalizeSearchText(query);
+  if (!q) return 1;
+
+  const symbol = normalizeSearchText(stock.symbol);
+  const name = normalizeSearchText(stock.name);
+  const sector = normalizeSearchText(stock.sector);
+  const aliases = Array.isArray(stock.aliases) ? stock.aliases.map(normalizeSearchText) : [];
+  const tokens = q.split(' ').filter(Boolean);
+
+  let score = 0;
+  if (symbol === q) score += 200;
+  if (aliases.includes(q)) score += 180;
+  if (name === q) score += 160;
+  if (symbol.startsWith(q)) score += 120;
+  if (name.startsWith(q)) score += 100;
+  if (aliases.some(alias => alias.startsWith(q))) score += 95;
+  if (name.includes(q)) score += 70;
+  if (aliases.some(alias => alias.includes(q))) score += 65;
+  if (sector.includes(q)) score += 25;
+
+  for (const token of tokens) {
+    if (symbol.includes(token)) score += 28;
+    if (name.includes(token)) score += 22;
+    if (aliases.some(alias => alias.includes(token))) score += 20;
+    if (sector.includes(token)) score += 8;
+  }
+
+  return score;
+}
+
+function searchStocks(items, query) {
+  const q = normalizeSearchText(query);
+  if (!q) return items;
+
+  return items
+    .map(stock => ({ stock, score: scoreStockMatch(stock, q), haystacks: getSearchHaystacks(stock) }))
+    .filter(entry => entry.score > 0 || entry.haystacks.some(text => text.includes(q)))
+    .sort((a, b) => b.score - a.score || a.stock.name.localeCompare(b.stock.name))
+    .map(entry => entry.stock);
+}
+
+function buildMeta({ provider, usingFallback, error, itemCount, sourceQuality = null, weakContext = false }) {
+  return {
+    provider,
+    usingFallback,
+    error,
+    itemCount,
+    sourceQuality,
+    weakContext,
+    generatedAt: new Date().toISOString()
+  };
 }
 
 async function fetchJson(url, options = {}) {
@@ -191,9 +264,40 @@ async function getMarketOverview() {
   };
 }
 
+function mapNewsItem(article, { usingFallback }) {
+  const source = trimText(article.source?.name || article.source || 'Unknown source', 60);
+  const isTrusted = TRUSTED_NEWS_SOURCES.some(name => source.toLowerCase().includes(name.toLowerCase()));
+  const title = trimText(article.title, 140) || (usingFallback ? 'Demo headline only' : 'Untitled headline');
+  const description = trimText(article.description || article.impact, 140);
+
+  return {
+    source,
+    sourceLabel: usingFallback ? `Demo / fallback item - ${source}` : source,
+    title,
+    impact: usingFallback
+      ? (description || 'Demo item shown because live news is unavailable or low-confidence.')
+      : (description || 'Business or market headline'),
+    url: article.url || 'https://www.nseindia.com/',
+    publishedAt: article.publishedAt || null,
+    isFallback: usingFallback,
+    trustNote: usingFallback
+      ? 'This is clearly marked fallback content for demo continuity. Do not treat it as live verified news.'
+      : isTrusted
+        ? 'Recognized business/news source.'
+        : 'Source may be less established. Verify before relying on it.'
+  };
+}
+
 async function getNewsItems() {
   if (NEWS_PROVIDER !== 'newsapi' || !NEWS_API_KEY) {
-    return { items: mockNews, provider: 'mock', usingFallback: true, error: 'News provider not configured' };
+    const items = mockNews.map(item => mapNewsItem(item, { usingFallback: true }));
+    return {
+      items,
+      provider: 'mock',
+      usingFallback: true,
+      error: 'News provider not configured',
+      sourceQuality: 'fallback'
+    };
   }
 
   try {
@@ -203,67 +307,93 @@ async function getNewsItems() {
 
     const items = articles
       .filter(article => article?.title && article?.url)
-      .map(article => ({
-        source: article.source?.name || 'NewsAPI',
-        title: trimText(article.title, 140),
-        impact: article.description ? trimText(article.description, 120) : 'Market headline',
-        url: article.url,
-        publishedAt: article.publishedAt || null
-      }));
+      .map(article => mapNewsItem(article, { usingFallback: false }));
 
     if (!items.length) throw new Error('No usable news articles returned');
 
-    return { items, provider: 'newsapi', usingFallback: false, error: null };
+    const trustedCount = items.filter(item => item.trustNote === 'Recognized business/news source.').length;
+    const sourceQuality = trustedCount >= Math.ceil(items.length / 2) ? 'mixed-to-good' : 'mixed';
+
+    return { items, provider: 'newsapi', usingFallback: false, error: null, sourceQuality };
   } catch (error) {
+    const items = mockNews.map(item => mapNewsItem(item, { usingFallback: true }));
     return {
-      items: mockNews,
+      items,
       provider: 'mock',
       usingFallback: true,
-      error: error instanceof Error ? error.message : 'Unknown news error'
+      error: error instanceof Error ? error.message : 'Unknown news error',
+      sourceQuality: 'fallback'
     };
   }
 }
 
-function buildMockAiAnswer({ question, stock, newsItems }) {
+function buildMockAiAnswer({ question, stock, newsItems, weakContext }) {
+  const lines = [];
+
   if (stock) {
-    const headline = newsItems[0]?.title ? `Recent headline: ${newsItems[0].title}.` : '';
-    return `${stock.name} (${stock.symbol}) currently shows a ${stock.view} setup in this demo. Price action is around ₹${stock.price}. ${stock.summary} ${headline} This answer is fallback-generated, so verify with live research before acting.`.trim();
+    lines.push(`${stock.name} (${stock.symbol}) is currently shown around ₹${stock.price} with move ${stock.changePercent >= 0 ? '+' : ''}${stock.changePercent}% in this app.`);
+    lines.push(`Current app view: ${stock.view}. Core reason in app data: ${stock.summary}`);
+  } else {
+    lines.push('I could not match the question to a stronger live stock context inside this app.');
   }
 
-  return `Fallback answer: I couldn't reach the AI provider, but the question was: ${question || 'No question provided'}. Use the latest market overview and headlines before making any decision.`;
+  if (newsItems[0]) {
+    lines.push(`Latest available headline here: ${newsItems[0].title} (${newsItems[0].sourceLabel}).`);
+  }
+
+  if (question) {
+    lines.push(`Question received: "${trimText(question, 120)}".`);
+  }
+
+  lines.push(weakContext
+    ? 'Context is weak right now, so treat this as a cautious summary only and verify with official filings or a trusted financial source.'
+    : 'This is still a fallback summary, not investment advice. Verify before acting.');
+
+  return lines.join(' ');
 }
 
 async function getGroundedAiAnswer({ question, symbol }) {
   const marketSnapshot = await fetchMarketSnapshots();
   const newsSnapshot = await getNewsItems();
   const stock = marketSnapshot.items.find(item => item.symbol === String(symbol || '').toUpperCase()) || null;
+  const weakContext = marketSnapshot.usingFallback || newsSnapshot.usingFallback || !stock || newsSnapshot.items.length < 2;
 
   const fallback = {
-    answer: buildMockAiAnswer({ question, stock, newsItems: newsSnapshot.items }),
-    confidence: stock ? 68 : 45,
-    sources: newsSnapshot.items.map(item => ({ source: item.source, url: item.url })),
+    answer: buildMockAiAnswer({ question, stock, newsItems: newsSnapshot.items, weakContext }),
+    confidence: weakContext ? 34 : stock ? 62 : 40,
+    sources: newsSnapshot.items.slice(0, 5).map(item => ({ source: item.sourceLabel, url: item.url, trustNote: item.trustNote })),
     provider: 'mock',
-    usingFallback: true
+    usingFallback: true,
+    weakContext
   };
 
   if (!OPENAI_API_KEY) return fallback;
 
   try {
     const prompt = [
-      'You are a concise market assistant for an Indian stocks demo app.',
-      'Answer in plain English, keep it under 170 words, and do not give absolute financial advice.',
-      'Use only the provided stock and news context. If context is thin, say so clearly.',
+      'You are a careful Indian market assistant inside a stock demo app.',
+      'Goal: be useful, grounded, and restrained.',
+      'Rules:',
+      '- Use only the provided context.',
+      '- If the context is weak, incomplete, or fallback-based, say that clearly in the first 1-2 sentences.',
+      '- Do not invent catalysts, targets, or certainty.',
+      '- Do not say buy/sell with confidence. Use cautious language like watch / monitor / verify.',
+      '- Keep the answer under 140 words.',
+      '- Prefer: what is known now, what is unclear, and what the user should verify next.',
       '',
       `User question: ${question || 'No question provided'}`,
       `Selected symbol: ${symbol || 'None'}`,
+      `Weak context flag: ${weakContext ? 'yes' : 'no'}`,
+      `Market provider: ${marketSnapshot.provider}`,
+      `News provider: ${newsSnapshot.provider}`,
       `Selected stock context: ${stock ? JSON.stringify(stock) : 'No matching stock found.'}`,
-      `Recent news context: ${JSON.stringify(newsSnapshot.items.slice(0, 5))}`
+      `News context: ${JSON.stringify(newsSnapshot.items.slice(0, 4))}`
     ].join('\n');
 
     const payload = {
       model: 'gpt-4.1-mini',
       input: prompt,
-      max_output_tokens: 220
+      max_output_tokens: 180
     };
 
     const response = await fetchJson(OPENAI_RESPONSES_URL, {
@@ -280,10 +410,11 @@ async function getGroundedAiAnswer({ question, symbol }) {
 
     return {
       answer,
-      confidence: stock ? 78 : 60,
-      sources: newsSnapshot.items.map(item => ({ source: item.source, url: item.url })),
+      confidence: weakContext ? 52 : stock ? 76 : 58,
+      sources: newsSnapshot.items.slice(0, 5).map(item => ({ source: item.sourceLabel, url: item.url, trustNote: item.trustNote })),
       provider: 'openai',
-      usingFallback: false
+      usingFallback: false,
+      weakContext
     };
   } catch {
     return fallback;
@@ -342,27 +473,36 @@ app.get('/api/market/overview', async (_req, res) => {
 
 app.get('/api/news', async (_req, res) => {
   const result = await getNewsItems();
+  const meta = buildMeta({
+    provider: result.provider,
+    usingFallback: result.usingFallback,
+    error: result.error,
+    itemCount: result.items.length,
+    sourceQuality: result.sourceQuality,
+    weakContext: result.usingFallback
+  });
+
   res.set('X-Provider', result.provider);
   res.set('X-Using-Fallback', String(result.usingFallback));
   if (result.error) res.set('X-Provider-Error', encodeURIComponent(result.error).slice(0, 180));
-  res.json(result.items);
+  res.json({ items: result.items, meta });
 });
 
 app.get('/api/stocks', async (req, res) => {
-  const q = (req.query.q || '').toString().trim().toLowerCase();
+  const q = (req.query.q || '').toString().trim();
   const snapshot = await fetchMarketSnapshots();
-  const filtered = !q
-    ? snapshot.items
-    : snapshot.items.filter(stock =>
-        stock.symbol.toLowerCase().includes(q) ||
-        stock.name.toLowerCase().includes(q) ||
-        stock.sector.toLowerCase().includes(q)
-      );
+  const filtered = searchStocks(snapshot.items, q);
+  const meta = buildMeta({
+    provider: snapshot.provider,
+    usingFallback: snapshot.usingFallback,
+    error: snapshot.error,
+    itemCount: filtered.length
+  });
 
   res.set('X-Provider', snapshot.provider);
   res.set('X-Using-Fallback', String(snapshot.usingFallback));
   if (snapshot.error) res.set('X-Provider-Error', encodeURIComponent(snapshot.error).slice(0, 180));
-  res.json(filtered.map(formatStock));
+  res.json({ items: filtered.map(formatStock), meta });
 });
 
 app.get('/api/stocks/:symbol', async (req, res) => {
