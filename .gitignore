@@ -1,0 +1,9 @@
+.openclaw/
+node_modules/
+**/node_modules/
+.env
+**/.env
+.DS_Store
+Thumbs.db
+*.log
+stock-demo-app/server/data/*.json

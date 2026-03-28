@@ -86,3 +86,6 @@ Do **not** ship stock recommendations or tomorrow-market direction claims withou
 - confidence scoring
 - disclaimers
 - legal/compliance review
+
+### Basic disclaimer now included in app
+The current app now includes a basic informational disclaimer, but that is only a starter layer. Before any public launch, you should still add a proper privacy policy, terms of use, and take compliance/legal review.

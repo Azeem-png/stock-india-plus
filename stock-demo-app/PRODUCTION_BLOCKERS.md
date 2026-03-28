@@ -6,6 +6,8 @@ The app is not truly production-ready until these are handled:
 2. Licensed or permitted financial news ingestion
 3. Source-grounded AI with citations and timestamps
 4. Legal disclaimer and compliance review
+   - Basic in-app disclaimer has now been added.
+   - Still needed before public launch: proper privacy policy, terms, and compliance review.
 5. Privacy policy and terms
 6. Android signing and release setup
 7. Crash logging / analytics / monitoring

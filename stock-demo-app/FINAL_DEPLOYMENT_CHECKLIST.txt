@@ -1,0 +1,103 @@
+STOCK INDIA PLUS - FINAL DEPLOYMENT CHECKLIST
+
+==================================================
+FASTEST DEPLOY PATH
+==================================================
+Frontend -> Vercel
+Backend -> Render
+
+==================================================
+STEP 1 - DEPLOY BACKEND ON RENDER
+==================================================
+Project folder:
+C:\Users\AZEEM KHAN\.openclaw\workspace\stock-demo-app\server
+
+Use these settings:
+- Runtime: Node
+- Build Command: npm install
+- Start Command: npm start
+
+Set these environment variables:
+- MARKET_DATA_PROVIDER=twelvedata
+- MARKET_DATA_API_KEY=YOUR_KEY
+- NEWS_PROVIDER=newsapi
+- NEWS_API_KEY=YOUR_KEY
+- OPENAI_API_KEY=YOUR_KEY
+
+Expected result:
+- You get a backend URL like:
+  https://your-backend.onrender.com
+
+Backend API base will be:
+- https://your-backend.onrender.com/api
+
+==================================================
+STEP 2 - SET FRONTEND API BASE
+==================================================
+Frontend now supports production-friendly API base.
+
+Use one of these methods:
+1. define window.STOCK_API_BASE
+2. set localStorage stockDemoApiBase
+
+Production target value should be:
+- https://your-backend.onrender.com/api
+
+==================================================
+STEP 3 - DEPLOY FRONTEND ON VERCEL
+==================================================
+Project folder:
+C:\Users\AZEEM KHAN\.openclaw\workspace\stock-demo-app
+
+Important file already added:
+- vercel.json
+
+Expected result:
+- You get a frontend URL like:
+  https://your-frontend.vercel.app
+
+==================================================
+STEP 4 - HOSTED TEST CHECKLIST
+==================================================
+After deploy, test all of this:
+- login screen opens first
+- name login works
+- app enters after login
+- switch user works
+- stock search works
+- selected stock details load
+- market overview loads
+- news loads
+- AI answer loads
+- watchlist save works
+- watchlist remove works
+- user-wise watchlist flow works
+- TradingView button works
+- disclaimer visible
+
+==================================================
+STEP 5 - IMPORTANT PRODUCTION NOTE
+==================================================
+Current watchlist uses local JSON storage.
+That is okay for demo/testing.
+For stronger real production, move this to a proper database later.
+
+Recommended future DB:
+- Supabase
+- PostgreSQL
+
+==================================================
+STEP 6 - STILL NEEDED BEFORE PUBLIC LAUNCH
+==================================================
+- privacy policy
+- terms of use
+- compliance/legal review
+- better AI guardrails/citations
+- final testing
+- Android polish/build
+
+==================================================
+SHORT TRUTH
+==================================================
+Deploy-ready prep is done.
+Actual public live deployment still needs to be executed on Render and Vercel.

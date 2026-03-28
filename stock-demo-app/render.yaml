@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: stock-india-plus-api
+    env: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: false
+    envVars:
+      - key: MARKET_DATA_PROVIDER
+        value: twelvedata
+      - key: NEWS_PROVIDER
+        value: newsapi
+      - key: MARKET_DATA_API_KEY
+        sync: false
+      - key: NEWS_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
