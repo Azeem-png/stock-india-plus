@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stock India Plus Debug</title>
+  <meta name="stock-api-base" content="https://sweet-playfulness-production.up.railway.app/api" />
+  <style>
+    body{font-family:Arial,sans-serif;padding:24px;background:#0b1220;color:#eef3ff}
+    .card{background:#121a2b;padding:16px 18px;border-radius:14px;max-width:900px}
+    code,pre{background:#0f1727;padding:2px 6px;border-radius:6px}
+    .ok{color:#22c55e}.bad{color:#ef4444}.muted{color:#9fb0d1}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Stock India Plus Debug</h2>
+    <div id="out">Running checks...</div>
+  </div>
+  <script>
+    const metaApiBase = document.querySelector('meta[name="stock-api-base"]')?.content || '';
+    const apiBase = metaApiBase || `${window.location.protocol}//${window.location.hostname}:8787/api`;
+    const out = document.getElementById('out');
+
+    async function run() {
+      const lines = [];
+      lines.push(`<div><strong>Page origin:</strong> <code>${window.location.origin}</code></div>`);
+      lines.push(`<div><strong>Resolved API base:</strong> <code>${apiBase}</code></div>`);
+      try {
+        const res = await fetch(`${apiBase}/health`);
+        lines.push(`<div><strong>/health status:</strong> <span class="${res.ok ? 'ok' : 'bad'}">${res.status}</span></div>`);
+        const text = await res.text();
+        lines.push(`<div><strong>/health body:</strong></div><pre>${text.replace(/[<>&]/g, s => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[s]))}</pre>`);
+      } catch (e) {
+        lines.push(`<div><strong>/health fetch:</strong> <span class="bad">${String(e.message || e)}</span></div>`);
+      }
+      try {
+        const res = await fetch(`${apiBase}/session?name=Azeem`);
+        lines.push(`<div><strong>/session status:</strong> <span class="${res.ok ? 'ok' : 'bad'}">${res.status}</span></div>`);
+        const text = await res.text();
+        lines.push(`<div><strong>/session body:</strong></div><pre>${text.replace(/[<>&]/g, s => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[s]))}</pre>`);
+      } catch (e) {
+        lines.push(`<div><strong>/session fetch:</strong> <span class="bad">${String(e.message || e)}</span></div>`);
+      }
+      out.innerHTML = lines.join('');
+    }
+
+    run();
+  </script>
+</body>
+</html>
