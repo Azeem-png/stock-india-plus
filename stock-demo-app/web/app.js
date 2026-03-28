@@ -1,4 +1,5 @@
-const configuredApiBase = window.STOCK_API_BASE || window.localStorage.getItem('stockDemoApiBase') || '';
+const metaApiBase = document.querySelector('meta[name="stock-api-base"]')?.content || '';
+const configuredApiBase = window.STOCK_API_BASE || metaApiBase || window.localStorage.getItem('stockDemoApiBase') || '';
 const apiBase = configuredApiBase
   ? configuredApiBase.replace(/\/$/, '')
   : `${window.location.protocol}//${window.location.hostname}:8787/api`;
